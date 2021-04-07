@@ -12,19 +12,9 @@
 	">
 	<h1>DevTools</h1> 
 	<p>Welcome to the DevTools - created and maintained by&#160;<a href="mailto:sascha.wildgrube@servicenow.com">Sascha Wildgrube</a>.</p>
-	<p>
-		<b>ServiceNow ressources</b>&#160;&#160;
-		<a href="https://developer.servicenow.com" target="_blank">developer</a>&#160;|&#160;
-		<a href="https://community.servicenow.com" target="_blank">community</a>&#160;|&#160;
-		<a href="https://docs.servicenow.com" target="_blank">docs</a>&#160;|&#160;
-		<a href="http://designsystem.servicenow.com" target="_blank">designsystem.servicenow.com</a>&#160;
-	</p>
-	<p>
-		<b>Useful tools</b>&#160;&#160;
-		<a href="https://chrome.google.com/webstore/detail/sn-utils-tools-for-servic/jgaodbdddndbaijmcljdbglhpdhnjobg?hl=en-US" target="_blank">SNUtils Chrome Extension</a>&#160;|&#160;
-		<a href="https://developer.servicenow.com/connect.do#!/share/contents/9650888_xplore_developer_toolkit?v=4.05" target="_blank">Xplore Developer Toolkit</a>&#160;|&#160;
-		<a href="https://developer.servicenow.com/connect.do#!/share/contents/4214057_run_test_from_atf_test_results?v=1&amp;t=PRODUCT_DETAILS" target="_blank">Run Test From ATF Test Results</a>&#160;
-	</p>
+	
+	<h2>Features</h2>
+	<p>DevTools contains a number of&#160;<b>script includes</b>&#160;with useful javascript functions and classes like a GetType() function that realy works. A few&#160;<b>UI improvements</b>&#160;like the Re-Test button in the test result form and&#160;<b>shortcuts</b>&#160;to various - sometimes hidden - views and system properties in your instance.</p>	
 	
 	<h2>System Requirements</h2>
 	<ul>
@@ -55,6 +45,35 @@
 		<li>Go to&#160;<a href="/system_properties_ui.do?sysparm_title=Instance%20Debug%20Options&amp;sysparm_category=devtools.instance.debug" target="_blank">Instance Debug Options</a>&#160;and activate the ATF test execution (if not set already).</li>
 		<li>Run the&#160;<a href="/sys_atf_test_suite.do?sys_id=4a8550391b5b8850a89720a8ec4bcbd9&amp;sysparm_view=DevTools&amp;sysparm_view_forced=true" target="_blank">DevTools Test Suite</a></li>
 	</ol>
+	
+	<h2>Reference</h2>
+	
+	<h3>Script includes</h3>
+	<g2:evaluate var="jvar_strScriptIncludes" jelly="true">
+		var grSSI = new GlideRecord('sys_script_include');
+		grSSI.addQuery('sys_scope','=','d689f6901bd38450a89720a8ec4bcbfd');
+		grSSI.addQuery('access','=','public');
+		grSSI.orderBy('name');
+		grSSI.query();
+
+		var strScriptIncludes = '';
+		while (grSSI.next())
+		{
+			//var strDescription = HtmlEncode(grSSI.getValue('description'));
+			var strDescription = grSSI.getValue('description');
+	
+			strScriptIncludes = strScriptIncludes + '<p><b>'+grSSI.getValue('name')+'</b>&#160;'+strDescription+'</p>';
+		}
+		strScriptIncludes;	
+	</g2:evaluate>
+	<g2:no_escape>$[jvar_strScriptIncludes]</g2:no_escape>	
+	
+	<h3>Script Editor Macros</h3>
+	<p>Each script include has a corresponding script editor macro (with the same name) that helps to integrate the contained functions or classes into your own code.</p>
+	<p>The macro "testscript" copies boilerplate code for a server-side script ATF test step.</p>
+
+	
+	
 	<h2>Release Notes</h2>
 	<h3>1.2.2 - 2020-08-02</h3>
 	<ol>
@@ -84,14 +103,16 @@
         <sys_class_name>sys_ui_page</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-02-27 11:17:42</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
         <sys_id>e44fd7541b578450a89720a8ec4bcb8c</sys_id>
-        <sys_mod_count>49</sys_mod_count>
+        <sys_mod_count>53</sys_mod_count>
         <sys_name>Start</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_ui_page_e44fd7541b578450a89720a8ec4bcb8c</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2020-08-02 10:23:20</sys_updated_on>
+        <sys_updated_by>admin_R3EXUVB</sys_updated_by>
+        <sys_updated_on>2020-11-27 09:32:34</sys_updated_on>
     </sys_ui_page>
 </record_update>

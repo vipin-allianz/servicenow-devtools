@@ -13,15 +13,17 @@ With a failure timeout of 5 Seconds</description>
         <notes>Check if user OPENER has the itil role</notes>
         <order>3</order>
         <snapshot/>
-        <step_config display_value="Record Query">0270b8005f30220012b44adb7f46666a</step_config>
+        <step_config display_value="Record Query (Deprecated)">0270b8005f30220012b44adb7f46666a</step_config>
         <sys_class_name>sys_atf_step</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-05-13 15:31:59</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
         <sys_id>8c62fb7c1b78d410a89720a8ec4bcb84</sys_id>
         <sys_mod_count>6</sys_mod_count>
         <sys_name>Record Query</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_atf_step_8c62fb7c1b78d410a89720a8ec4bcb84</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
