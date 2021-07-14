@@ -5,83 +5,200 @@
         <api_name>x_snc_devtools.RenderValue</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description>Render any value as a string.</description>
+        <description>Render any value as a string. In case of objects, the keys are displayed in alphabetical order. In case of arrays, the elements are displayed in the given order. In case of a GlideRecord, the table name, sys_id and number (if available) are displayed on top, and a selected choice of fields leads the list of values despite the alphabetical order.</description>
         <name>RenderValue</name>
-        <script><![CDATA[function RenderValue(vValue, nLevel)
+        <script><![CDATA[function RenderValue(vValue, bHideEmpty, nLevel)
 {
-	nLevel = parseInt(nLevel);
+	bHideEmpty = GetBoolValue(bHideEmpty);
+	nLevel = GetIntegerValue(nLevel);
 	var strLevel = '___';
 	strLevel = strLevel.repeat(nLevel);
-	
-	var bIsObject = vValue instanceof Object;
-	var strTypeOf = typeof vValue;
 
 	if (vValue === undefined)
 	{
 		return 'undefined';
 	}
+
 	if (vValue === null)
 	{
 		return 'null';
 	}
 
-	var strOutput = '';
-	
-	if (Array.isArray(vValue))
+	var strType = GetType(vValue); 
+	if (strType == 'ScopedGlideElement')
 	{
+		return ''+vValue;
+	}
+	if (strType == 'function')
+	{
+		return '\n'+vValue;
+	}
+	if (strType == 'Array')
+	{
+		var strOutput = '';
 		if (vValue.length == 0)
 		{
+			if (strLevel.length > 0)
+			{
+				strOutput += '\n';
+			}
 			strOutput += strLevel+'[]';
 		}
 		else
 		{
 			vValue.forEach( function(vElement,nKey)
 			{
-				strOutput += '\n'+strLevel+'['+nKey+']: '+RenderValue(vElement,nLevel+1);
+				strOutput += '\n'+strLevel+'['+nKey+']: '+RenderValue(vElement,bHideEmpty,nLevel+1);
 			});
 		}
+		return strOutput;
 	}
-	else if (bIsObject || (strTypeOf == 'object'))
+	if (IsObject(vValue))
 	{
-		// when called from a different scope than devtools, this causes the following error...
-		// com.glide.script.fencing.MethodNotAllowedException: Function getValue is not allowed in scope x_snc_devtools
-/*		if (vValue.getValue == undefined)
+		var strOutput = '';
+		var aKeys = GetKeys(vValue);
+		//var aKeys = ['sys_id','short_description']; 
+		if (aKeys.length == 0)
 		{
-			Object.keys(vValue).forEach( function(strKey)
+			if (strLevel.length > 0)
 			{
-				strOutput += '\n'+strLevel+'["'+strKey+'"]: '+RenderValue(''+vValue[strKey],nLevel+1);
-			});
+				strOutput += '\n';
+			}		
+			strOutput += strLevel+'{}';
 		}
 		else
-		{*/
-			Object.keys(vValue).forEach( function(strKey)
+		{
+			function Compare(value1, value2)
 			{
-				//strOutput += '\n'+strLevel+'["'+strKey+'"]: '+RenderValue(vValue.getValue(strKey),nLevel+1);
-				
-				// ...so we use array syntax in all cases:
-				strOutput += '\n'+strLevel+'["'+strKey+'"]: '+RenderValue(''+vValue[strKey],nLevel+1);
+				if (value1 < value2)
+				{
+					return -1;
+				}
+				if (value1 > value2)
+				{
+					return 1;
+				}
+				return 0;
+			}
+			function CompareUnderscoresAtEnd(value1, value2)
+			{
+				value1 = GetStringValue(value1);
+				value2 = GetStringValue(value2);
+				var nUnderscores1 = 0;
+				var nUnderscores2 = 0;
+				while (value1[nUnderscores1] == '_')
+				{
+					nUnderscores1++;
+				}
+				while (value2[nUnderscores2] == '_')
+				{
+					nUnderscores2++;
+				}
+				if (nUnderscores1 < nUnderscores2)
+				{
+					return -1;
+				}
+				if (nUnderscores1 > nUnderscores2)
+				{
+					return 1;
+				}
+				return Compare(value1, value2);
+			}
+
+			function CompareGlideRecordKeys(str1, str2)
+			{
+				var aPriorityKeys = ['user_name','name','short_description'];
+				for (var nKey = 0; nKey < aPriorityKeys.length; nKey++)
+				{
+					if (str1 == aPriorityKeys[nKey])
+					{
+						return -1
+					}
+					if (str2 == aPriorityKeys[nKey])
+					{
+						return 1;
+					}
+				}
+				return CompareUnderscoresAtEnd(str1,str2);
+			}		
+			
+			if (IsValidRecord(vValue))
+			{
+				var strTable = vValue.getRecordClassName();
+				var strSysId = GetStringValue(vValue.sys_id);
+				var strNumber = GetStringValue(vValue.getValue('number'));
+				if (strTable != '')
+				{
+					strOutput += '\n'+strLevel+strTable+':';
+					if (strNumber != '')
+					{
+						strOutput += ' '+strNumber+':';
+					}
+					if (strSysId != '')
+					{
+						strOutput += ' '+strSysId+':';
+					}
+				}
+				aKeys.sort(CompareGlideRecordKeys);
+			}
+			else if (ArrayValueExists(GetKeys(vValue),'sys_id') == true)
+			{
+				var strClassName = GetStringValue(GetValue(vValue,'sys_class_name'));
+				var strSysId = GetStringValue(GetValue(vValue,'sys_id'));
+				var strNumber = GetStringValue(GetValue(vValue,'number'));
+
+				if (   strClassName != ''
+					|| strSysId != ''
+					|| strNumber != '')
+				{
+					strOutput += '\n'+strLevel;
+					if (strClassName != '')
+					{
+						strOutput += strClassName+': ';
+					}
+					if (strNumber != '')
+					{
+						strOutput += strNumber+': ';
+					}
+					if (strSysId != '')
+					{
+						strOutput += strSysId+': ';
+					}
+				}
+				aKeys.sort(CompareGlideRecordKeys);
+			}
+			else
+			{
+				aKeys.sort(CompareUnderscoresAtEnd);
+			}
+			aKeys.forEach( function(strKey)
+			{
+				var strValue = RenderValue(vValue[strKey],bHideEmpty,nLevel+1);
+				if (bHideEmpty == false || strValue != '')
+				{
+					strOutput += '\n'+strLevel+'["'+strKey+'"]: '+strValue;
+				}
+
 			});
-		//}
+		}
+		return strOutput;
 	}
-	else
-	{
-		strOutput += ''+vValue;
-	}
-	return strOutput;
+
+	return ''+vValue;
 }]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-02-27 09:04:23</sys_created_on>
         <sys_customer_update>false</sys_customer_update>
         <sys_id>a6e04b581bd38450a89720a8ec4bcbc8</sys_id>
-        <sys_mod_count>24</sys_mod_count>
+        <sys_mod_count>64</sys_mod_count>
         <sys_name>RenderValue</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
         <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_script_include_a6e04b581bd38450a89720a8ec4bcbc8</sys_update_name>
-        <sys_updated_by>admin_R3EXUVB</sys_updated_by>
-        <sys_updated_on>2021-02-01 14:47:02</sys_updated_on>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2021-07-05 12:12:19</sys_updated_on>
     </sys_script_include>
 </record_update>

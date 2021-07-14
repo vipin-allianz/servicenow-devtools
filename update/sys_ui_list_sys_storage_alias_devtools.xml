@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="sys_storage_alias" version="2" view="devtools">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>table_name</element>
+            <list_id display_value="sys_storage_alias" element="NULL" name="sys_storage_alias" parent="NULL" relationship="NULL" sys_domain="global" view="75e08353dbbf0450ba15a35305961913">a2ecf9abdb0b2c50ba15a353059619cd</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_id>eaecf9abdb0b2c50ba15a353059619cd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>element_name</element>
+            <list_id display_value="sys_storage_alias" element="NULL" name="sys_storage_alias" parent="NULL" relationship="NULL" sys_domain="global" view="75e08353dbbf0450ba15a35305961913">a2ecf9abdb0b2c50ba15a353059619cd</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_id>6eecf9abdb0b2c50ba15a353059619cd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>storage_table_name</element>
+            <list_id display_value="sys_storage_alias" element="NULL" name="sys_storage_alias" parent="NULL" relationship="NULL" sys_domain="global" view="75e08353dbbf0450ba15a35305961913">a2ecf9abdb0b2c50ba15a353059619cd</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_id>eeecf9abdb0b2c50ba15a353059619cd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>storage_alias</element>
+            <list_id display_value="sys_storage_alias" element="NULL" name="sys_storage_alias" parent="NULL" relationship="NULL" sys_domain="global" view="75e08353dbbf0450ba15a35305961913">a2ecf9abdb0b2c50ba15a353059619cd</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_id>62ecf9abdb0b2c50ba15a353059619ce</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>offrow_storage</element>
+            <list_id display_value="sys_storage_alias" element="NULL" name="sys_storage_alias" parent="NULL" relationship="NULL" sys_domain="global" view="75e08353dbbf0450ba15a35305961913">a2ecf9abdb0b2c50ba15a353059619cd</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_id>e2ecf9abdb0b2c50ba15a353059619ce</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>sys_storage_alias</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2021-03-28 12:33:37</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>a2ecf9abdb0b2c50ba15a353059619cd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>sys_storage_alias</sys_name>
+            <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
+            <sys_update_name>sys_ui_list_sys_storage_alias_devtools</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2021-03-28 12:33:37</sys_updated_on>
+            <sys_user/>
+            <view display_value="DevTools" name="devtools">75e08353dbbf0450ba15a35305961913</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

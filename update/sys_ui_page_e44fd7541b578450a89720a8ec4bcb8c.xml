@@ -4,77 +4,320 @@
         <client_script/>
         <description/>
         <direct>false</direct>
-        <endpoint>x_snc_devtools_Start.do</endpoint>
+        <endpoint>x_snc_devtools_start.do</endpoint>
         <html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
 <j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
-<div style="
-	padding-left: 20px;
-	">
-	<h1>DevTools</h1> 
-	<p>Welcome to the DevTools - created and maintained by&#160;<a href="mailto:sascha.wildgrube@servicenow.com">Sascha Wildgrube</a>.</p>
+<div style="padding-left: 20px;">
+<span style="visibility: hidden;">_CUT_HERE_</span>
+	<g2:no_escape>$[
+		var docapi = new DocumentationAPI('d689f6901bd38450a89720a8ec4bcbfd');
+		docapi.RenderHeader();
+	]</g2:no_escape>
 	
-	<h2>Features</h2>
-	<p>DevTools contains a number of&#160;<b>script includes</b>&#160;with useful javascript functions and classes like a GetType() function that realy works. A few&#160;<b>UI improvements</b>&#160;like the Re-Test button in the test result form and&#160;<b>shortcuts</b>&#160;to various - sometimes hidden - views and system properties in your instance.</p>	
+	<p>Welcome to the DevTools - created and maintained by&#160;<a href="mailto:sascha.wildgrube@servicenow.com">Sascha Wildgrube</a>.</p>
+
+	<h2>Features</h2> 
+	<p>DevTools contains a number of&#160;<b>script includes</b>&#160;with useful javascript functions and classes like a GetType() function that really works. A few&#160;<b>UI improvements</b>&#160;like the Re-Test button in the test result form and&#160;<b>shortcuts</b>&#160;to various - sometimes hidden - views and system properties in your instance.</p>
+
+	<h2>Disclaimer</h2>
+	<g2:no_escape>$[docapi.RenderDisclaimer()]</g2:no_escape>	
 	
 	<h2>System Requirements</h2>
 	<ul>
-		<li>Madrid or later</li>
+		<li>Orlando, Paris or Quebec</li>
 	</ul>
 	
+	<h2>Security Notice</h2>
+	<p>To leverage the full potential of DevTools functions, some settings need to be changed to allow more cross scope access for scoped apps. This might be considered as a breach of security guidelines and should be validated with those who are responsible for security within the instance!</p>
+		
 	<h2>Installation</h2>
 	<p>To use the full potential of DevTools perform the following steps:</p>
 	<ol>
-		<li>Install the application</li>
-		<li>Enable create, read, write and delete operations for all applications on the following tables:
+		<g2:no_escape>$[
+			docapi.RenderInstallationInstructionsImportFromSourceControl(
+				'DevTools',
+				'https://github.com/saschawildgrube/servicenow-devtools');
+		]</g2:no_escape>
+		<li>Switch to global scope.</li>
+		<li>Create a new update set in the global scope to capture all changes related to the DevTools installation.</li>
+		<li>Enable create, read, write and delete operations for all applications on the table&#160;<a href="/sys_db_object.do?sys_id=sys_script_include&amp;sysparm_refkey=name" target="_blank">sys_script_include</a>.</li>
+		<g2:no_escape>$[
+			docapi.RenderInstallationInstructionsAppInstall();
+		]</g2:no_escape>		
+		<li>Set the update set in the global scope to to complete.</li>
+		<li>Go to&#160;"<a href="/system_properties_ui.do?sysparm_title=Instance%20Debug%20Options&amp;sysparm_category=devtools.instance.debug" target="_blank">Instance Debug Options</a>"&#160;and activate the ATF test execution (if not set already).</li>
+		<li>Run the&#160;<a href="/sys_atf_test_suite.do?sys_id=4a8550391b5b8850a89720a8ec4bcbd9&amp;sysparm_view=DevTools&amp;sysparm_view_forced=true" target="_blank">DevTools Test Suite.</a></li>
+		<li>In case of errors:
 			<ol>
-				<li><a href="/sys_db_object.do?sys_id=sys_properties&amp;sysparm_refkey=name" target="_blank">sys_properties</a></li>
-				<li><a href="/sys_db_object.do?sys_id=sys_properties_category_m2m&amp;sysparm_refkey=name" target="_blank">sys_properties_category_m2m</a></li>
-				<li><a href="/sys_db_object.do?sys_id=sys_user_group&amp;sysparm_refkey=name" target="_blank">sys_user_group</a></li>
-				<li><a href="/sys_db_object.do?sys_id=incident&amp;sysparm_refkey=name" target="_blank">incident</a></li>
-				<li><a href="/sys_db_object.do?sys_id=incident_task&amp;sysparm_refkey=name" target="_blank">incident_task</a></li>
-				<li><a href="/sys_db_object.do?sys_id=change_request&amp;sysparm_refkey=name" target="_blank">change_request</a></li>
-				<li><a href="/sys_db_object.do?sys_id=change_task&amp;sysparm_refkey=name" target="_blank">change_task</a></li>
-				<li><a href="/sys_db_object.do?sys_id=problem&amp;sysparm_refkey=name" target="_blank">problem</a></li>
-				<li><a href="/sys_db_object.do?sys_id=problem_task&amp;sysparm_refkey=name" target="_blank">problem_task</a></li>
-				<li><a href="/sys_db_object.do?sys_id=sc_request&amp;sysparm_refkey=name" target="_blank">sc_request</a></li>
+				<li>Tests "DevTools - GetGroupsFromUser" and "DevTools - TestDataAPI": Retry after a few minutes. Some cross-scrope privileges will be set up during the first test run and might take a few minutes to be effective.</li>
+				<li>Test "DevTools - TestDataAPI": This script creates various records (e.g., incidents and problems). If there are customizations in place that make additional fields mandatory, you may have to set up business rules to set these values - but only if the short description (or the corresponding field) starts with "_ATF_".</li>
 			</ol>
 		</li>
-		
-		<li>Go to the "Install Script" module and execute the script.</li>
-		<li>Go to the "Install Log" module and check for error messages.</li>
-		<li>Go to&#160;<a href="/system_properties_ui.do?sysparm_title=Instance%20Debug%20Options&amp;sysparm_category=devtools.instance.debug" target="_blank">Instance Debug Options</a>&#160;and activate the ATF test execution (if not set already).</li>
-		<li>Run the&#160;<a href="/sys_atf_test_suite.do?sys_id=4a8550391b5b8850a89720a8ec4bcbd9&amp;sysparm_view=DevTools&amp;sysparm_view_forced=true" target="_blank">DevTools Test Suite</a></li>
 	</ol>
 	
 	<h2>Reference</h2>
+
+	<h3>Configuration options</h3>
+	<g2:no_escape>$[docapi.RenderProperties()]</g2:no_escape>
 	
 	<h3>Script includes</h3>
-	<g2:evaluate var="jvar_strScriptIncludes" jelly="true">
-		var grSSI = new GlideRecord('sys_script_include');
-		grSSI.addQuery('sys_scope','=','d689f6901bd38450a89720a8ec4bcbfd');
-		grSSI.addQuery('access','=','public');
-		grSSI.orderBy('name');
-		grSSI.query();
-
-		var strScriptIncludes = '';
-		while (grSSI.next())
-		{
-			//var strDescription = HtmlEncode(grSSI.getValue('description'));
-			var strDescription = grSSI.getValue('description');
+	<g2:no_escape>$[docapi.RenderScriptIncludes()]</g2:no_escape>
 	
-			strScriptIncludes = strScriptIncludes + '<p><b>'+grSSI.getValue('name')+'</b>&#160;'+strDescription+'</p>';
-		}
-		strScriptIncludes;	
-	</g2:evaluate>
-	<g2:no_escape>$[jvar_strScriptIncludes]</g2:no_escape>	
+	<h3>Test step configurations</h3>
+	<p>DevTools contains the following customized test step configurations:</p>
+	<g2:no_escape>$[docapi.RenderTestStepConfigurations()]</g2:no_escape>
 	
-	<h3>Script Editor Macros</h3>
-	<p>Each script include has a corresponding script editor macro (with the same name) that helps to integrate the contained functions or classes into your own code.</p>
-	<p>The macro "testscript" copies boilerplate code for a server-side script ATF test step.</p>
-
-	
+	<h2>License</h2>
+	<g2:no_escape>$[docapi.RenderCopyright(2020,'Sascha Wildgrube')]</g2:no_escape>
+	<g2:no_escape>$[docapi.RenderLicense()]</g2:no_escape>
 	
 	<h2>Release Notes</h2>
+
+	<h3>1.20.0 - 2021-07-06</h3>
+	<ol>
+		<li>AppSanity() now sets is_private to false for system properties.</li>
+		<li>AppSanity() now deletes useless ACLs for create and delete operations on fields.</li>
+	</ol>
+	
+	<h3>1.19.1 - 2021-07-05</h3>
+	<ol>
+		<li>TestDataAPI.GetAllUsers() scanned for users where the "name" started with the prefix instead of the "user_name". This has been fixed.</li>
+		<li>RenderValue() now also sorts the field "user_name" to the top.</li>
+		<li>ATF tests "DevTools - GetGroupsFromUser", "DevTools - IsUserHasRoleExactly", "DevTools - TestDataAPI - ITSM" and "DevTools - IsUserSecurityAdmin" were checking for the user name ("name") instead of the user id ("user_name") leading to inconsistent results on customized instances. This has been fixed. </li>
+	</ol>
+	
+	<h3>1.19.0 - 2021-06-30</h3>
+	<ol>
+		<li>Installation has been simplified. Only the sys_script_include table needs to be configured for cross scope access.</li> 
+		<li>Massive refactoring to remove the dependency to the cross scope configuration to various tables.</li>
+		<li>Added functions GlideRecordDeleteMultiple() and GlideRecordSetValue() to perform said activities from global scope.</li>
+		<li>Added function DocumentationAPI.RenderInstallationInstructionsAppInstall() to guide an admin to run the AppInstall() function during installation.</li>
+		<li>Extended DocumentationAPI.RenderInstallationInstructionsImportFromSourceControl() with a new step to create a personal access token.</li>
+		<li>Install() has been renamed to AppInstall().</li>
+		<li>IsValidTable() now checks for an empty table name before getting the record.</li>
+		<li>ATF test "DevTools - GetRolesFromUser" has been refactored into a single script.</li>
+	</ol>
+			
+	<h3>1.18.0 - 2021-06-24</h3>
+	<ol>
+		<li>Added function TestDataAPI.DeleteAllData() to delete all test data items.</li>
+		<li>TestDataAPI.GetAllIncidents() now also lists the related task_sla records.</li>
+		<li>TestDataAPI.CreateDatabaseView() now sets the order and left_join fields correctly.</li>
+		<li>Added function IsArray() to check if a given value is an array or not.</li>
+		<li>RenderValue() now displays nested empty arrays and empty objects as a separate row.</li>
+		<li>RenderValue() now sorts keys of an object in a way that underscores are sorted to the end. This allows to implement a hierarchy using underscores as a prefix to a key name.</li> 
+		<li>RecordSetValue() is now using GlideRecordUpdate() internally making it more resilient against cross scope restrictions.</li>
+		<li>Added module "Script Execution History" to access previous executions of background scripts.</li>
+		<li>Refactoring to limit the use of Object.keys() to the GetKeys() function.</li>
+	</ol>
+	
+	<h3>1.17.0 - 2021-06-21</h3>
+	<ol>
+		<li>Added function GlideRecordDelete() to execute the deleteRecord member function of a GlideRecord in global scope.</li>
+		<li>Added function SetProperty() to set any property regardless of its scope.</li>
+		<li>Added function TestDataAPI.CreateDatabaseView() and associated functions to create database views as part of a test.</li>
+		<li>TestDataAPI.CreateTestItem() did not delete the existing item before creating a new one, this has been fixed.</li>
+		<li>Fixed the sort order in the "Query Log" module.</li>
+		<li>The security notice regarding cross scope access configuration is now more prominent at the beginning of the documentation.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" now checks for notification subscriptions that are associated to the scoped app.</li>
+	</ol>
+	
+	<h3>1.16.0 - 2021-06-10</h3>
+	<ol>
+		<li>Changed the short description to "Code library and tools for ServiceNow developers".</li>
+		<li>Added functions GlideRecordQuery(), GlideRecordInsert() and GlideRecordUpdate() to call GlideRecord's corresponding member functions in global scope.</li>
+		<li>Added function IsValidDatabaseView() to check if the given string identifies a database view.</li>
+		<li>Added function GetDatabaseViewsFromTable() to return all database views which use the given table.</li> 
+		<li>Added function ArrayRemoveValue() to remove a value from an array.</li>
+		<li>Added function GetInstanceURL() to return the intance root URL.</li>
+		<li>Added function GetTablesByColumnType() to return all tables which have at least one column of the given type.</li>
+		<li>Function UserAddRole() is now public.</li>
+		<li>Function IsValidTable() is now public.</li>
+		<li>TestDataAPI.GetAllUsers() now also provides the user's roles.</li>
+		<li>RecordSetValue() can now set values in records across scopes.</li>
+		<li>Added the missing script macro for RenderBytes.</li> 
+	</ol>
+	
+	<h3>1.15.0 - 2021-05-05</h3>
+	<ol>
+		<li>WARNING: New York is now longer actively supported.</li>
+		<li>Added function IsTechnicalUser() to check if a given user is a technical user (i.e. web_service_access_only is set to true).</li>
+		<li>Added function IsProperty() to check if a given system property exists.</li>
+		<li>Added function AppSetProperty() to set a DevTools system property to a value.</li> 
+		<li>Added function UserImpersonate() which allows to impersonate a user from within a scoped application!</li>
+		<li>Added function GetRecord() to serve as a shorthand to get a GlideRecord object for a record in a given table, identified by a sys_id.</li>
+		<li>Added function GetRandomNumericToken() to create a pseudo-random numeric token string of a given length.</li>
+		<li>Added function UserAddRole() to add a role to a user if the user doesn't have the role already.</li>
+		<li>RunScriptInGlobalScope() did not work correctly if different scripts were provided within one transaction. It would always execute the first script during a transaction. This has been fixed. Please note that within a provided script, result values must now be set using "result =" instead of "return".</li>
+		<li>RenderValue() now treats any object that has the sys_id key in the same way as a real GlideRecord object.</li>
+		<li>GetGroupsFromUser() now checks for an empty user sys id. If an empty sys id was provided and for whatever reasons the sys_user_grmember has records with an empty sys_id, the associated groups would then be returned.</li>
+		<li>Added view "DevTools" for scheduled jobs to show the "Run as" field.</li>
+		<li>Renamed internal function SetDefaults() to AppSetDefaults().</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" now uses IsTechnicalUser() to check correct configuration of scheduled jobs.</li>
+	</ol>
+	
+	<h3>1.14.0 - 2021-04-20</h3>
+	<ol>
+		<li>Added function RenderBytes() to return a user friendly number of bytes using KB, MB and GB where appropriate.</li>
+		<li>Added function RecordDelete() to delete a single record based on a table name and the record sys id.</li>
+		<li>RecordBulkProcessor() now detects if updating a record fails and aborts the processing. If the update fails, the maintenance date time field cannot be updated and the function would retry the same record until thresholds are reached.</li>
+		<li>Added test "DevTools - Test data sanity" to check if all test data has been cleaned up in previous test runs.</li>
+		<li>Added internal function SetDefaults() to set all DevTools system properties to their default values.</li> 
+	</ol>
+
+	
+	<h3>1.13.0 - 2021-04-15</h3>
+	<ol>
+		<li>Added the StopWatch class which serves exactly as what its name suggests.</li>
+		<li>Added function GetTimeNow() which is a shorthand for "new Date().getTime()".</li>
+		<li>Added function GetTransactionRuntime() to return the amount of milliseconds passed since the start of the current transaction.</li>
+		<li>GetGroupsFromUser() can now return the list of a user's groups with an encoded filter applied to the groups.</li>
+		<li>Added function BusinessRuleGetOperation() to return the operation (of a business rule) based on the provided record.</li>
+		<li>Debug() can now display the current transaction runtime in milliseconds. The new property x_snc_devtools.debug.log.transaction_runtime controls if the transaction runtime should be included or not.</li> 
+		<li>RenderValue() has been improved: In case of a GlideRecord, the table name, sys_id and number (if available) are displayed on top and a selected choice of fields leads the list of values despite the alphabetical order.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" now checks scheduled jobs for only technical users or the system admin serve as the run_as user.</li>
+		<li>Added module "Query Log" to track invalid queries.</li>
+		<li>The module "Outbox" is renamed to "Outbox or Sent" and displays sent mails.</li>
+		<li>Improved column order in module "Storage Column Aliases".</li>
+	</ol>	
+	
+	<h3>1.12.2 - 2021-03-22</h3>
+	<ol>
+		<li>Fixed a defect in IsVersionCompatible().</li>
+	</ol>	
+	
+	<h3>1.12.1 - 2021-03-22</h3>
+	<ol>
+		<li>Fixed a defect in the test step configuration "DevTools - Check scoped app sanity".</li>
+	</ol>
+	
+	<h3>1.12.0 - 2021-03-22</h3>
+	<ol>
+		<li>RecordBulkProcessor() will no longer process the same record twice in one go.</li>
+		<li>Test step configuration "DevTools - Check scoped app sanity" now checks for useless field level ACLs.</li>
+		<li>Test step configuration "DevTools - Check scoped app sanity" now checks for misconfigured test steps.</li>
+		<li>Test step configuration "DevTools - Check table cross scope access" checks if "Caller access" is set to "Caller Restriction".</li>
+		<li>Added a comprehensive syntax editor macro for "RecordBulkProcessor" with boilerplate code.</li>
+	</ol>
+	
+	
+	<h3>1.11.0 - 2021-03-19</h3>
+	<ol>
+		<li>Madrid is no longer supported.</li>
+		<li>Added function RecordBulkProcessor() to process large amounts of records using a callback function.</li>
+		<li>Added function Clone() to clone objects. This is to heal the JavaScript inherent design flaw around object references instead of copies.</li>
+		<li>Added function Merge() to merge two objects.</li>
+		<li>Added function RecordSetValue() to set a single field value on a given record.</li>  
+		<li>Added function IsObject() to distinguish objects from other types.</li>
+		<li>Added function IsValidTable() since the TableUtils script include is not accessible from a scoped app.</li> 
+		<li>Added function RenderDateTime() since Javascript has no built-in function to render an ISO date/time string.</li>
+		<li>Added function Sleep() to do nothing for a set amount of seconds.</li>
+		<li>RenderValue() now has a second parameter "bHideEmpty". If set to true, empty values in objects are ignored - leading to better readable output.</li>
+		<li>RenderValue() sorts keys of objects alphabetically. However, the keys "name", "short_description", "number" and "sys_id" will always lead the pack.</li>
+		<li>RenderValue() now displays empty objects as "{}".</li>
+		<li>IsEqual() can now compare objects.</li>
+		<li>TestDataAPI: Added function GetAllData() and corresponding functions for each supported record type GetAllIncidents(), GetAllProblems(), etc.</li>
+		<li>TestDataAPI: Added function CreateTestItem() and GetAllTestItems() to manage entries in the table x_snc_devtools_test which is used for testing.</li>
+		<li>ParseDateTime() is now more resilient against incorrect input.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" now checks for empty descriptions in publicly accessible script includes.</li> 
+		<li>Improved installation instructions.</li>
+	</ol>
+	
+	<h3>1.10.0 - 2021-02-26</h3>
+	<ol>
+		<li>Added function GetAppName() to return the name of a scoped application but without any name postfixes to indicate work in progress. This function is needed to create clean test step configuration descriptions.</li>
+		<li>Added function AppSanity() which performs a number of changes to a scoped app's assets to maintain applicaton sanity. E.g. the function removes the copied_from attribute in atf tests.</li>
+		<li>RenderValue() was improved: In case of objects, the keys are displayed in alphabetical order. In case of arrays, the elements are displayed in the given order as before.</li>
+		<li>Added function DocumentationAPI::RenderListItem() and refactored all Render*() functions.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" now checks for jelly breakpoints in UI pages.</li> 
+		<li>Added configuration options section to the documentation.</li>
+		<li>Removed unnecessary debug logging in TestDataAPI.</li>
+	</ol>
+	
+	
+	<h3>1.9.0 - 2021-02-15</h3>
+	<ol>
+		<li>Quebec is now supported.</li>
+		<li>Added function GetRolesFromUser() to get the sys_ids of all active roles of a user.</li>
+		<li>Added function TestDataAPI::CreateRole() to create a role for testing purposes.</li>
+		<li>TestDataAPI::CreateUser() now also accepts the name of a role without the prefix.</li>
+		<li>Added function DocumentationAPI::RenderInstallationInstructionsImportFromSourceControl() to render installation instructions for importing an application from source control.</li>
+		<li>Added function DocumentationAPI::RenderDisclaimer().</li>
+		<li>Improved the rendering of script include documentation in DocumentationAPI::RenderScriptIncludes().</li> 
+		<li>Added missing description to the DocumentationAPI script include.</li>
+		<li>Test step configuration "DevTools - Check scoped app sanity" now checks if the app's short_description is empty.</li>
+		<li>Test step configuration "DevTools - Check scoped app sanity" now checks if a module's link_type is set to "HTML" (which doesn't work properly).</li>
+	</ol>	
+	
+	<h3>1.8.0 - 2021-01-21</h3>
+	<ol>
+		<li>Added the DocumentationAPI class to render HTML fragments for a documentation UI page.</li>
+	</ol>
+
+	
+	<h3>1.7.0 - 2021-01-20</h3>
+	<ol>
+		<li>Added function IsValidVersion() to check for a valid (ServiceNow app) version string.</li>
+		<li>Added function IsVersionCompatible() to check a version against a requirement.</li>
+		<li>Added test step configuration "DevTools - Check scoped app dependency". This test step configuration checks if another required scoped application is installed in a (backward) compatible version.</li>
+		<li>Added module "Background Script" to open the background script page in a new window.</li>
+		<li>Added new navigation section "Transaction" and moved all transaction related modules into it.</li> 
+		<li>Added new navigation section "Cache" for easy access to the cache inspection tool and to flush the cache.</li> 
+		<li>Added new navigation section "Events" to easily access the event log, event registry, notifications, and outbox.</li>
+		<li>Added more test cases for GetIntegerValue().</li>
+	</ol>
+	
+	<h3>1.6.0 - 2021-01-14</h3>
+	<ol>
+		<li>Added function IsTableCrossScopeAccessible() to check if applications from other scopes can perform read, create, update and delete operations on the given table.</li>
+		<li>Added function RunScriptInGlobalScope() to run a script in the global scope from within a scoped application. Note that the function required full cross scope access to the sys_script_include table.</li>
+		<li>IsEqual() now uses type strict comparison and will no longer return true in case of IsEqual(1,"1").</li>
+		<li>The "Rerun Test" button has been renamed to "Run Test" and is now available on all forms that directly refer to an ATF test (including test steps).</li> 
+		<li>The ATF tests "TestDataAPI" and "GetGroupsFromUser" now make use of the "DevTools - IsTableCrossScopeAccessible" test step configuration to check if the cross scope access to the tables is configured.</li>
+		<li>The ATF test "Installation" now checks if the system property glide.record.legacy_cross_scope_access_policy_in_script is set to true to avoid cross scope access policy errors. Refer to&#160;<a target="_blank" href="https://support.servicenow.com/kb?id=kb_article_view&amp;sys_kb_id=db973947db18eb48feb1a851ca9619b4">KB0711970</a>.</li>
+	</ol>
+	
+	<h3>1.5.0 - 2020-11-23</h3>
+	<ol>
+		<li>Added test step configuration "DevTools - Check scoped app sanity". This test step configuration takes a scoped application and checks if all its sys_properties are NOT set to private, and all ATF tests have an empty copied_from field. More checks will be added later.</li>
+		<li>Added test step configuration "DevTools - Check table cross scope access"</li>
+		<li>Added test step configurations to the documentation.</li>
+		<li>Added test "DevTools - Installation" to check if all relevant tables are configured according to the installation guide.</li>
+		<li>Added test "DevTools - App Sanity" to check if the app sanity is ok.</li>
+		<li>Added table sys_user to the list of tables which need full cross scope access.</li>
+	</ol>
+	<h3>1.4.0 - 2020-11-16</h3>
+	<ol>
+		<li>Added function IsUserSecurityAdmin().</li>
+	</ol>
+	<h3>1.3.0 - 2020-11-04</h3>
+	<ol>
+		<li>Added class TransactionCacheAPI.</li>
+		<li>Added function HtmlEncode().</li>
+		<li>Added function GetKeys().</li>
+		<li>Added function StringRemoveCharacters().</li>
+		<li>Part of the documentation is generated automatically based on record descriptions.</li>
+	</ol>
+	<h3>1.2.4 - 2020-09-10</h3>
+	<ol>
+		<li>ParseDateTime() has been repaired, aligned to UTC and the corresponding test has been implemented.</li>
+		<li>LoadMessages() now takes the language as the second parameter. Defaults to 'en'.</li>
+		<li>GetBoolValue() was not accessible out of scope. This has been fixed.</li>
+		<li>IsValidRecord() now also checks for type ScopedGlideRecord and ScopedGlideRecordSecure. The ATF test has been updated accordingly.</li>
+		<li>TestDataAPI functions now display the sys_ids of created records in the log.</li>
+		<li>Added the "Cancel Transactions" module.</li>
+		<li>Added test and macro for IsUserHasRoleExactly().</li>
+		<li>Added the system property x_snc_devtools.ui.list_button to control if the "List" button should be visible or not.</li>
+		<li>Extended documentation with a reference to all script includes.</li>
+	</ol>
+
+	<h3>1.2.3 - 2020-08-21</h3>
+	<ol>
+		<li>Added the "Transaction Log" module.</li>
+		<li>"Evaluator Log", "Debug Log" and "App Log" modules only show the last 30 minutes.</li>
+		<li>Added the "Storage Column Aliases" module.</li>
+		<li>RenderValue() can now work properly with nested objects.</li>
+	</ol>
 	<h3>1.2.2 - 2020-08-02</h3>
 	<ol>
 		<li>RenderValue() no longer causes the following error: com.glide.script.fencing.MethodNotAllowedException: Function getValue is not allowed in scope x_snc_devtools.</li>
@@ -86,7 +329,7 @@
 	<h3>1.2.0 - 2020-07-07</h3>
 	<ol>
 		<li>Added TestDataAPI.CreateRequest() and extended the ATF test "DevTools - TestDataAPI"</li>
-		<li>Refactoring of several functions in TestDataAPI. Caller and Opener users can now explicitly set.</li>
+		<li>Refactoring of several functions in TestDataAPI. Caller and Opener users can now be set explicitly.</li>
 		<li>Added function IsValidRecord()</li>
 	</ol>	
 	<h3>1.1.0 - 2020-07-03</h3>
@@ -95,24 +338,25 @@
 		<li>The install script is now a scheduled script that can be run on demand instead of a fix script that runs automatically.</li>
 	</ol>	
 	<h3>1.0.0 - 2020-06-23</h3>
-	<p>First baselined version</p>	
-</div>	
+	<p>First baselined version</p>
+<span style="visibility: hidden;">_CUT_HERE_</span>
+</div>
 </j:jelly>]]></html>
-        <name>Start</name>
+        <name>start</name>
         <processing_script/>
         <sys_class_name>sys_ui_page</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-02-27 11:17:42</sys_created_on>
         <sys_customer_update>false</sys_customer_update>
         <sys_id>e44fd7541b578450a89720a8ec4bcb8c</sys_id>
-        <sys_mod_count>53</sys_mod_count>
-        <sys_name>Start</sys_name>
+        <sys_mod_count>386</sys_mod_count>
+        <sys_name>start</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
         <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_ui_page_e44fd7541b578450a89720a8ec4bcb8c</sys_update_name>
-        <sys_updated_by>admin_R3EXUVB</sys_updated_by>
-        <sys_updated_on>2020-11-27 09:32:34</sys_updated_on>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2021-07-06 11:30:07</sys_updated_on>
     </sys_ui_page>
 </record_update>
