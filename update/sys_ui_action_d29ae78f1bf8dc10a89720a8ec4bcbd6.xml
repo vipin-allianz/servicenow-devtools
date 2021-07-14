@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
     <sys_ui_action action="INSERT_OR_UPDATE">
         <action_name>list</action_name>
-        <active>true</active>
+        <active>false</active>
         <client>false</client>
         <client_script_v2><![CDATA[function onClick(g_form) {
 
 }]]></client_script_v2>
         <comments>Show the "List" button to navigate back to the record's list view.  </comments>
-        <condition>x_snc_devtools.GetBoolValue(gs.getProperty('x_snc_devtools.ui.list_button')) == true</condition>
+        <condition/>
         <form_action>true</form_action>
         <form_button>true</form_button>
         <form_button_v2>false</form_button_v2>
@@ -42,7 +42,7 @@ gs.setRedirect(strUrl);]]></script>
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>d29ae78f1bf8dc10a89720a8ec4bcbd6</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>List</sys_name>
         <sys_overrides/>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
@@ -50,9 +50,9 @@ gs.setRedirect(strUrl);]]></script>
         <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_ui_action_d29ae78f1bf8dc10a89720a8ec4bcbd6</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2020-09-08 11:41:54</sys_updated_on>
-        <table>global</table>
+        <sys_updated_by>admin_GE53559</sys_updated_by>
+        <sys_updated_on>2020-08-04 16:54:38</sys_updated_on>
+        <table/>
         <ui11_compatible>true</ui11_compatible>
         <ui16_compatible>false</ui16_compatible>
     </sys_ui_action>

@@ -15,21 +15,12 @@ TestDataAPI.prototype =
 		this.SetPrefix(strPrefix);
 	},
 	
-	Log:function(strContext, vValue)
+	Log:function(strFunctionName, vValue)
 	{
-		Log('TestDataAPI: '+strContext+': '+GetStringValue(vValue));
+		var GetStringValue = x_snc_devtools.GetStringValue;
+		Debug('TestDataAPI.'+strFunctionName+'(): '+GetStringValue(vValue));
 	},
 
-	Debug:function(strContext, vValue)
-	{
-		Debug('TestDataAPI: '+strContext+': '+GetStringValue(vValue));
-	},
-	
-	DebugAllData:function(strContext)
-	{
-		this.Debug(strContext,RenderValue(this.GetAllData()));
-	},
-	
 	SetPrefix:function(strPrefix)
 	{
 		this.m_strPrefix = ''+strPrefix;
@@ -40,107 +31,15 @@ TestDataAPI.prototype =
 		return this.m_strPrefix;
 	},
 	
-	GetAllData:function()
+	CreateUser:function(strName, aRoles)
 	{
-		var result = {};
-
-		result.x_snc_devtools_test = this.GetAllTestItems();
-		result.sys_user = this.GetAllUsers();
-		result.sys_user_group = this.GetAllGroups();
-		result.sys_user_role = this.GetAllRoles();
-		result.incident = this.GetAllIncidents();
-		result.incident_task = this.GetAllIncidentTasks();
-		result.problem = this.GetAllProblems();
-		result.problem_task = this.GetAllProblemTasks();
-		result.change_request = this.GetAllChangeRequests();
-		result.change_task = this.GetAllChangeTasks();
-		result.sc_request = this.GetAllRequests();
-		//result.sc_req_item = this.GetAllRequestedItems();
-		//result.sc_task = this.GetAllRequestTasks();
-		result.sys_db_view = this.GetAllDatabaseViews();
-		return result;
-	},
-	
-	DeleteAllData:function(data)
-	{
-		if (IsObject(data) == false)
-		{
-			var data = this.GetAllData();
-		}
-		var aTables = GetKeys(data);
-		for (var nTable = 0; nTable < aTables.length; nTable++)
-		{
-			var strTable = aTables[nTable];
-			var aRecords = GetValue(data,strTable);
-			if (IsArray(aRecords) == true)
-			{
-				for (var nRecord = 0; nRecord < aRecords.length; nRecord++)
-				{
-					var oRecord = aRecords[nRecord];
-					var strSysId = GetValue(oRecord,'sys_id');
-					if (IsValidSysId(strSysId) == true)
-					{
-						//Debug('Attempting to delete: '+strTable+': '+strSysId);
-						RecordDelete(strTable,strSysId);
-					}
-				}
-			}
-		}
-	},
-	
-	CreateTestItem:function(strName, strValue, strProcessedDateTime)
-	{
-		strName = GetStringValue(strName);
-		strValue = GetStringValue(strValue);
-		strProcessedDateTime = RenderDateTime(strProcessedDateTime);
-		var strPrefix = this.GetPrefix();
+		var GetStringValue = x_snc_devtools.GetStringValue;
+		var GetArrayValue = x_snc_devtools.GetArrayValue;
 		
-		var grTestItem = new GlideRecord('x_snc_devtools_test');
-		var strSysId = null;
-		grTestItem.addQuery('name','=',strPrefix+strName);
-		grTestItem.query();
-		while(grTestItem.next())
-		{
-			grTestItem.getValue('sys_id');
-			GlideRecordDelete(grTestItem);
-		}
-		
-		grTestItem.initialize();
-		grTestItem.name = strPrefix+strName;
-		grTestItem.value = strValue;
-		grTestItem.processed = strProcessedDateTime;
-		strSysId = GlideRecordInsert(grTestItem);
-
-		if (strSysId == null)
-		{
-			return null;
-		}
-		return strSysId;
-	},
-	
-	GetAllTestItems:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grTestItem = new GlideRecord('x_snc_devtools_test');
-		grTestItem.addQuery('name','STARTSWITH',strPrefix);
-		grTestItem.orderBy('name');
-		grTestItem.query();
-		while (grTestItem.next())
-		{
-			aResult.push(Clone(grTestItem));
-		}
-		return aResult;
-	},
-	
-	
-	CreateUser:function(strName, aRoles, bTechnical)
-	{
-	
 		strName = GetStringValue(strName);
 		aRoles = GetArrayValue(aRoles); 
-		bTechnical = GetBoolValue(bTechnical);
+		
+		this.Log('CreateUser',strName+' '+RenderValue(aRoles));
 		
 		strPrefix = this.GetPrefix();
 		
@@ -150,107 +49,76 @@ TestDataAPI.prototype =
 		if (grUser.get('user_name','=',strPrefix+strName))
 		{
 			strUserSysId = grUser.getValue('sys_id');
-			bDeleted = GlideRecordDelete(grUser);
+			bDeleted = grUser.deleteRecord();
 		}
 		if (bDeleted == true || strUserSysId == null)
 		{
-			grUser.initialize();
+			grUser.newRecord();
 			grUser.user_name = strPrefix+strName;
 			grUser.first_name = strPrefix+strName;
-			if (bTechnical == true)
-			{
-				grUser.web_service_access_only = true;
-			}
-			strUserSysId = GlideRecordInsert(grUser);
+			strUserSysId = grUser.insert();
 		}
 
 		if (strUserSysId == null)
 		{
+			this.Log('CreateUser','Failed to create user '+strName+'!');
 			return null;
 		}
+		this.Log('CreateUser','User '+strName+' has been created.');
 		
 		var grUserHasRole = new GlideRecord("sys_user_has_role");
-		for (var nRole = 0; nRole < aRoles.length; nRole++)
+		aRoles.forEach(function(strRole)
 		{
-			var strRole = aRoles[nRole];
 			if (strRole != '')
 			{
 				var grUserRole = new GlideRecord('sys_user_role');
-				grUserRole.addQuery('name','=',strPrefix+strRole);
+				grUserRole.addQuery('name','=',strRole);
 				grUserRole.query();
-				if (grUserRole.getRowCount() == 0)
-				{
-					grUserRole = new GlideRecord('sys_user_role');
-					grUserRole.addQuery('name','=',strRole);
-					grUserRole.query();
-				}
 				if (grUserRole.getRowCount() == 1)
-				{					
+				{
 					if (grUserRole.next())
-					{		
+					{						
 						grUserHasRole.initialize();
 						grUserHasRole.role = grUserRole.sys_id;
 						grUserHasRole.user = strUserSysId;
-						GlideRecordInsert(grUserHasRole);
+						grUserHasRole.insert();
 					}
 				}
+
 			}
-		}
+		});
 		return strUserSysId;
-	},
-	
-	GetAllUsers:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grUser = new GlideRecord('sys_user');
-		grUser.addQuery('user_name','STARTSWITH',strPrefix);
-		grUser.orderBy('user_name');
-		grUser.query();
-		while (grUser.next())
-		{
-			var oUser = Clone(grUser);
-			var aRoles = [];
-			var grUserHasRole = new GlideRecord('sys_user_has_role');
-			grUserHasRole.addQuery('user','=',grUser.sys_id);
-			grUserHasRole.query();
-			while (grUserHasRole.next())
-			{
-				var grRole = new GlideRecord('sys_user_role');
-				if (grRole.get(grUserHasRole.role))
-				{
-					aRoles.push(grRole.name);
-				}
-			}
-			aRoles = aRoles.sort();
-			oUser['_roles'] = aRoles;
-			aResult.push(oUser);
-		}
-		return aResult;
 	},
 	
 	CreateGroup:function(strName, aUserNames)
 	{	
+		var RenderValue = x_snc_devtools.RenderValue;
+		var GetStringValue = x_snc_devtools.GetStringValue;
+		var GetArrayValue = x_snc_devtools.GetArrayValue;
+
 		strName = GetStringValue(strName);
 		aUserNames = GetArrayValue(aUserNames);
+		
+		this.Log('CreateGroup',strName+' '+RenderValue(aUserNames));
 	
 		var strPrefix = this.GetPrefix();
 		
 		var grGroupToDelete = new GlideRecord('sys_user_group');
 		grGroupToDelete.addQuery('name','=',strPrefix+strName);
 		grGroupToDelete.query();
-		GlideRecordDeleteMultiple(grGroupToDelete);
+		grGroupToDelete.deleteMultiple();
 
 		var grGroup = new GlideRecord('sys_user_group');
-		grGroup.initialize();
+		grGroup.newRecord();
 		grGroup.name = strPrefix+strName;
-		var strGroupSysId = GlideRecordInsert(grGroup);
+		var strGroupSysId = grGroup.insert();
 
 		if (strGroupSysId == null)
 		{
+			this.Log('CreateGroup','Failed to create group '+strName+'!');
 			return null;
 		}
+		this.Log('CreateGroup','Group '+strName+' has been created.');		
 		
 		var grGroupMember = new GlideRecord('sys_user_grmember');
 		aUserNames.forEach(function(strUserName)
@@ -263,7 +131,7 @@ TestDataAPI.prototype =
 					grGroupMember.initialize();
 					grGroupMember.group = strGroupSysId;
 					grGroupMember.user = grUser.sys_id;
-					GlideRecordInsert(grGroupMember);
+					grGroupMember.insert();
 				}
 
 			}
@@ -271,61 +139,6 @@ TestDataAPI.prototype =
 		return strGroupSysId;
 	},
 	
-	GetAllGroups:function()
-	{
-		var aGroups = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grGroup = new GlideRecord('sys_user_group');
-		grGroup.addQuery('name','STARTSWITH',strPrefix);
-		grGroup.orderBy('name');
-		grGroup.query();
-		while (grGroup.next())
-		{
-			aGroups.push(Clone(grGroup));
-		}
-		return aGroups;
-	},	
-	
-	CreateRole:function(strName)
-	{	
-		strName = GetStringValue(strName);
-		
-		var strPrefix = this.GetPrefix();
-		
-		var grRoleToDelete = new GlideRecord('sys_user_role');
-		grRoleToDelete.addQuery('name','=',strPrefix+strName);
-		grRoleToDelete.query();
-		GlideRecordDeleteMultiple(grRoleToDelete);
-
-		var grRole = new GlideRecord('sys_user_role');
-		grRole.initialize();
-		GlideRecordSetValue(grRole,'name',strPrefix+strName);
-		//grRole.state = 'active';
-		var strRoleSysId = GlideRecordInsert(grRole);
-
-		if (strRoleSysId == null)
-		{
-			return null;
-		}
-		return strRoleSysId;
-	},
-		
-	GetAllRoles:function()
-	{
-		var aRoles = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grRole = new GlideRecord('sys_user_role');
-		grRole.addQuery('name','STARTSWITH',strPrefix);
-		grRole.orderBy('name');
-		grRole.query();
-		while (grRole.next())
-		{
-			aRoles.push(Clone(grRole));
-		}
-		return aRoles;
-	},
 	
 	CreateIncident:function(strName, strOpenedByUserName, strCallerUserName, strAssignmentGroupName)
 	{
@@ -334,14 +147,16 @@ TestDataAPI.prototype =
 		strName = GetStringValue(strName);
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strCallerUserName = GetStringValue(strCallerUserName);
-		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);	
+		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
+
+		this.Log('CreateIncident',strName+' by '+strOpenedByUserName+' for '+strCallerUserName+', assign to '+strAssignmentGroupName);		
 
 		var strPrefix = this.GetPrefix(); 
 
 		var grIncidentToDelete = new GlideRecord('incident');
 		grIncidentToDelete.addQuery('short_description','=',strPrefix+strName);
 		grIncidentToDelete.query();
-		GlideRecordDeleteMultiple(grIncidentToDelete);
+		grIncidentToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -374,45 +189,22 @@ TestDataAPI.prototype =
 		}
 		
 		var grIncident = new GlideRecord('incident');
-		grIncident.initialize();
+		grIncident.newRecord();
 		grIncident.short_description = strPrefix+strName;
 		grIncident.opened_by = strOpenedByUserSysId;
 		grIncident.caller_id = strCallerUserSysId;
 		grIncident.assignment_group = strAssignmentGroupSysId;
-		var strIncidentSysId = GlideRecordInsert(grIncident);
+		var strIncidentSysId = grIncident.insert();
 		
 		if (strIncidentSysId == null)
 		{
+			this.Log('CreateIncident','Failed to create incident '+strName+'!');
 			return null;
 		}
+		this.Log('CreateIncident','Incident '+strName+' has been created.');				
 		return strIncidentSysId;
 	},
 
-	GetAllIncidents:function()
-	{
-		var aIncidents = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grIncident = new GlideRecord('incident');
-		grIncident.addQuery('short_description','STARTSWITH',strPrefix);
-		grIncident.orderBy('short_description');
-		grIncident.query();
-		while (grIncident.next())
-		{
-			var oIncident = Clone(grIncident);
-			var aTaskSLA = [];
-			var grTaskSLA = new GlideRecord('task_sla');
-			grTaskSLA.addQuery('task','=',grIncident.sys_id);
-			GlideRecordQuery(grTaskSLA);
-			while (grTaskSLA.next())
-			{
-				aTaskSLA.push(Clone(grTaskSLA));
-			}
-			oIncident['_task_sla'] = aTaskSLA;
-			aIncidents.push(oIncident);
-		}
-		return aIncidents;
-	},
 	
 	CreateIncidentTask:function(strParentName, strName, strOpenedByUserName, strAssignmentGroupName)
 	{
@@ -423,6 +215,8 @@ TestDataAPI.prototype =
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
 		
+		this.Log('CreateIncidentTask',strParentName+' '+strName+' '+strOpenedByUserName+' '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
 
 		var strShortDescription = strPrefix+strParentName+'_'+strName;
@@ -430,7 +224,7 @@ TestDataAPI.prototype =
 		var grIncidentTaskToDelete = new GlideRecord('incident_task');
 		grIncidentTaskToDelete.addQuery('short_description','=',strShortDescription);
 		grIncidentTaskToDelete.query();
-		GlideRecordDeleteMultiple(grIncidentTaskToDelete);
+		grIncidentTaskToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -463,35 +257,22 @@ TestDataAPI.prototype =
 		}	
 		
 		var grIncidentTask = new GlideRecord('incident_task');
-		grIncidentTask.initialize();
+		grIncidentTask.newRecord();
 		grIncidentTask.incident = strIncidentSysId;
 		grIncidentTask.short_description = strShortDescription;
 		grIncidentTask.opened_by = strOpenedByUserSysId;
 		grIncidentTask.assignment_group = strAssignmentGroupSysId;
-		var strIncidentTaskSysId = GlideRecordInsert(grIncidentTask);
+		var strIncidentTaskSysId = grIncidentTask.insert();
 		
 		if (strIncidentTaskSysId == null)
 		{
+			this.Log('CreateIncidentTask','Failed to create incident task '+strName+'!');
 			return null;
 		}
+		this.Log('CreateIncidentTask','Incident '+strName+' has been created.');				
 		return strIncidentTaskSysId;
 	},
 	
-	GetAllIncidentTasks:function()
-	{
-		var aIncidentTasks = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grIncidentTask = new GlideRecord('incident_task');
-		grIncidentTask.addQuery('short_description','STARTSWITH',strPrefix);
-		grIncidentTask.orderBy('short_description');
-		grIncidentTask.query();
-		while (grIncidentTask.next())
-		{
-			aIncidentTasks.push(Clone(grIncidentTask));
-		}
-		return aIncidentTasks;
-	},	
 	
 	CreateChangeRequest:function(strName, strOpenedByUserName, strRequestedByUserName, strAssignmentGroupName)
 	{
@@ -501,13 +282,15 @@ TestDataAPI.prototype =
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strRequestedByUserName = GetStringValue(strRequestedByUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
-
+		
+		this.Log('CreateChangeRequest',strName+' by '+strOpenedByUserName+' for '+strRequestedByUserName+', assign to '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
 
 		var grChangeRequestToDelete = new GlideRecord('change_request');
 		grChangeRequestToDelete.addQuery('short_description','=',strPrefix+strName);
 		grChangeRequestToDelete.query();
-		GlideRecordDeleteMultiple(grChangeRequestToDelete);
+		grChangeRequestToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -540,34 +323,20 @@ TestDataAPI.prototype =
 		}
 		
 		var grChangeRequest = new GlideRecord('change_request');
-		grChangeRequest.initialize();
+		grChangeRequest.newRecord();
 		grChangeRequest.short_description = strPrefix+strName;
 		grChangeRequest.opened_by = strOpenedByUserSysId;
 		grChangeRequest.requested_by = strRequestedByUserSysId;
 		grChangeRequest.assignment_group = strAssignmentGroupSysId;
-		var strChangeRequestSysId = GlideRecordInsert(grChangeRequest);
+		var strChangeRequestSysId = grChangeRequest.insert();
 		if (strChangeRequestSysId == null)
 		{
+			this.Log('CreateChangeRequest','Failed to create change request '+strChangeRequestSysId+'!');
 			return null;
 		}
+		this.Log('CreateChangeRequest','Change request '+strName+' has been created.');			
 		return strChangeRequestSysId;
 	},
-		
-	GetAllChangeRequests:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grChangeRequests = new GlideRecord('change_request');
-		grChangeRequests.addQuery('short_description','STARTSWITH',strPrefix);
-		grChangeRequests.orderBy('short_description');
-		grChangeRequests.query();
-		while (grChangeRequests.next())
-		{
-			aResult.push(Clone(grChangeRequests));
-		}
-		return aResult;
-	},		
 	
 	CreateChangeTask:function(strParentName, strName, strOpenedByUserName, strAssignmentGroupName)
 	{
@@ -578,6 +347,8 @@ TestDataAPI.prototype =
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
 		
+		this.Log('CreateChangeTask',strParentName+' '+strName+' '+strOpenedByUserName+' '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
 
 		var strShortDescription = strPrefix+strParentName+'_'+strName;
@@ -585,7 +356,7 @@ TestDataAPI.prototype =
 		var grChangeTaskToDelete = new GlideRecord('change_task');
 		grChangeTaskToDelete.addQuery('short_description','=',strShortDescription);
 		grChangeTaskToDelete.query();
-		GlideRecordDeleteMultiple(grChangeTaskToDelete);
+		grChangeTaskToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -618,35 +389,21 @@ TestDataAPI.prototype =
 		}	
 		
 		var grChangeTask = new GlideRecord('change_task');
-		grChangeTask.initialize();
+		grChangeTask.newRecord();
 		grChangeTask.change_request = strChangeRequestSysId;
 		grChangeTask.short_description = strShortDescription;
 		grChangeTask.opened_by = strOpenedByUserSysId;
 		grChangeTask.assignment_group = strAssignmentGroupSysId;
-		var strChangeTaskSysId = GlideRecordInsert(grChangeTask);
+		var strChangeTaskSysId = grChangeTask.insert();
 		
 		if (strChangeTaskSysId == null)
 		{
+			this.Log('CreateChangeTask','Failed to create change task '+strName+'!');
 			return null;
 		}
+		this.Log('CreateChangeTask','Change task '+strName+' has been created.');				
 		return strChangeTaskSysId;
 	},
-	
-	GetAllChangeTasks:function()
-	{
-		var aChangeTasks = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grChangeTasks = new GlideRecord('change_task');
-		grChangeTasks.addQuery('short_description','STARTSWITH',strPrefix);
-		grChangeTasks.orderBy('short_description');
-		grChangeTasks.query();
-		while (grChangeTasks.next())
-		{
-			aChangeTasks.push(Clone(grChangeTasks));
-		}
-		return aChangeTasks;
-	},		
 		
 	CreateProblem:function(strName, strOpenedByUserName, strAssignmentGroupName)
 	{
@@ -656,12 +413,15 @@ TestDataAPI.prototype =
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
 
+		this.Log('CreateProblem',strName+' by '+strOpenedByUserName+', assigned to '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
+
 
 		var grProblemToDelete = new GlideRecord('problem');
 		grProblemToDelete.addQuery('short_description','=',strPrefix+strName);
 		grProblemToDelete.query();
-		GlideRecordDeleteMultiple(grProblemToDelete);
+		grProblemToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -684,34 +444,21 @@ TestDataAPI.prototype =
 		}
 		
 		var grProblem = new GlideRecord('problem');
-		grProblem.initialize();
+		grProblem.newRecord();
 		grProblem.short_description = strPrefix+strName;
 		grProblem.opened_by = strOpenedByUserSysId;
 		grProblem.assignment_group = strAssignmentGroupSysId;
-		var strProblemSysId = GlideRecordInsert(grProblem);
+		var strProblemSysId = grProblem.insert();
 		
 		if (strProblemSysId == null)
 		{
+			this.Log('CreateProblem','Failed to create problem '+strName+'!');
 			return null;
 		}
+		this.Log('CreateProblem','Problem '+strName+' has been created.');				
 		return strProblemSysId;
 	},
 
-	GetAllProblems:function()
-	{
-		var aProblems = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grProblem = new GlideRecord('problem');
-		grProblem.addQuery('short_description','STARTSWITH',strPrefix);
-		grProblem.orderBy('short_description');
-		grProblem.query();
-		while (grProblem.next())
-		{
-			aProblems.push(Clone(grProblem));
-		}
-		return aProblems;
-	},		
 	
 	CreateProblemTask:function(strParentName, strName, strOpenedByUserName, strAssignmentGroupName)
 	{
@@ -722,6 +469,8 @@ TestDataAPI.prototype =
 		strOpenedByUserName = GetStringValue(strOpenedByUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
 
+		this.Log('CreateProblemTask',strParentName+' '+strName+' by '+strOpenedByUserName+', assigned to '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
 
 		var strShortDescription = strPrefix+strParentName+'_'+strName;
@@ -729,7 +478,7 @@ TestDataAPI.prototype =
 		var grProblemTaskToDelete = new GlideRecord('problem_task');
 		grProblemTaskToDelete.addQuery('short_description','=',strShortDescription);
 		grProblemTaskToDelete.query();
-		GlideRecordDeleteMultiple(grProblemTaskToDelete);
+		grProblemTaskToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -762,35 +511,22 @@ TestDataAPI.prototype =
 		}	
 		
 		var grProblemTask = new GlideRecord('problem_task');
-		grProblemTask.initialize();
+		grProblemTask.newRecord();
 		grProblemTask.problem = strProblemSysId;
 		grProblemTask.short_description = strShortDescription;
 		grProblemTask.opened_by = strOpenedByUserSysId;
 		grProblemTask.assignment_group = strAssignmentGroupSysId;
-		var strProblemTaskSysId = GlideRecordInsert(grProblemTask);
+		var strProblemTaskSysId = grProblemTask.insert();
 		
 		if (strProblemTaskSysId == null)
 		{
+			this.Log('CreateProblemTask','Failed to create problem task '+strName+'!');
 			return null;
 		}
+		this.Log('CreateProblemTask','Problem '+strName+' has been created.');				
 		return strProblemTaskSysId;
 	},
 	
-	GetAllProblemTasks:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grProblemTask = new GlideRecord('problem_task');
-		grProblemTask.addQuery('short_description','STARTSWITH',strPrefix);
-		grProblemTask.orderBy('short_description');
-		grProblemTask.query();
-		while (grProblemTask.next())
-		{
-			aResult.push(Clone(grProblemTask));
-		}
-		return aResult;
-	},		
 	
 	CreateRequest:function(strName, strOpenedByUserName, strRequestedForUserName, strAssignmentGroupName)
 	{
@@ -801,12 +537,14 @@ TestDataAPI.prototype =
 		strRequestedForUserName = GetStringValue(strRequestedForUserName);
 		strAssignmentGroupName = GetStringValue(strAssignmentGroupName);
 		
+		this.Log('CreateRequest',strName+' by '+strOpenedByUserName+' for '+strRequestedForUserName+', assign to '+strAssignmentGroupName);		
+		
 		var strPrefix = this.GetPrefix(); 
 
 		var grRequestToDelete = new GlideRecord('sc_request');
 		grRequestToDelete.addQuery('short_description','=',strPrefix+strName);
 		grRequestToDelete.query();
-		GlideRecordDeleteMultiple(grRequestToDelete);
+		grRequestToDelete.deleteMultiple();
 
 		var strOpenedByUserSysId = '';
 		if (strOpenedByUserName != '')
@@ -826,7 +564,7 @@ TestDataAPI.prototype =
 			{
 				strRequestedForUserSysId = grUser.sys_id;
 			}
-		}	 
+		}	
 		
 		var strAssignmentGroupSysId = '';
 		if (strAssignmentGroupName != '')
@@ -839,181 +577,23 @@ TestDataAPI.prototype =
 		}
 		
 		var grRequest = new GlideRecord('sc_request');
-		grRequest.initialize();
+		grRequest.newRecord();
 		grRequest.short_description = strPrefix+strName;
 		grRequest.opened_by = strOpenedByUserSysId;
 		grRequest.requested_for = strRequestedForUserSysId;
 		grRequest.assignment_group = strAssignmentGroupSysId;
-		var strRequestSysId = GlideRecordInsert(grRequest);
+		var strRequestSysId = grRequest.insert();
 		if (strRequestSysId == null)
 		{
+			this.Log('CreateRequest','Failed to create request '+strRequestSysId+'!');
 			return null;
 		}
+		this.Log('CreateRequest','Request '+strName+' has been created.');			
 		return strRequestSysId;
 		
 	},
 	
-	GetAllRequests:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetPrefix();
-		
-		var grRequests = new GlideRecord('sc_request');
-		grRequests.addQuery('short_description','STARTSWITH',strPrefix);
-		grRequests.orderBy('short_description');
-		grRequests.query();
-		while (grRequests.next())
-		{
-			aResult.push(Clone(grRequests));
-		}
-		return aResult;
-	},		
-	
-	
-	
-	CreateDatabaseView:function(strName, oDbView)
-	{
-		strName = GetStringValue(strName);
-		
-		if (strName == '')
-		{
-			return null;
-		}
-		
-		if (IsObject(oDbView) == false)
-		{
-			this.Debug('CreateDatabaseView','oDbView is NOT an object!');
-			return null;
-		}
 
-		var aTables = GetArrayValue(GetValue(oDbView,'tables'));
-		if (aTables.length == 0)
-		{
-			this.Debug('CreateDatabaseView','No tables are specified!');
-			return null;
-		}
-	
-		
-		var strDatabaseViewName = this.GetDatabaseViewName(strName);
-		
-		this.Debug('CreateDatabaseView',strName+' / '+strDatabaseViewName);		
-
-		var grDbViewToDelete = new GlideRecord('sys_db_view');
-		grDbViewToDelete.addQuery('name','=',strDatabaseViewName);
-		grDbViewToDelete.query();
-		while(grDbViewToDelete.next())
-		{
-			this.Debug('CreateDatabaseView','Deleting existing database view "'+strDatabaseViewName+'"!');
-			GlideRecordDelete(grDbViewToDelete);
-		}
-		
-		var grDbView = new GlideRecord('sys_db_view');
-		grDbView.initialize();
-		grDbView.name = strDatabaseViewName;
-		var strDbViewSysId = GlideRecordInsert(grDbView);
-		if (strDbViewSysId == null)
-		{
-			this.Debug('CreateDatabaseView','Failed to create database view "'+strDatabaseViewName+'"!');
-			return null;
-		}
-		
-		for (var nTable = 0; nTable < aTables.length; nTable++)
-		{
-			var table = aTables[nTable];
-			if (IsObject(table) == true)
-			{
-				var grDbViewTable = new GlideRecord('sys_db_view_table');
-				grDbViewTable.initialize();
-				grDbViewTable.active = true;
-				grDbViewTable.view = strDbViewSysId;
-				grDbViewTable.table = GetValue(table,'table');
-				grDbViewTable.order = GetStringValue(GetValue(table,'order'));
-				grDbViewTable.left_join = GetBoolValue(GetValue(table,'left_join'));
-				grDbViewTable.variable_prefix = GetValue(table,'variable_prefix');
-				grDbViewTable.where_clause = GetValue(table,'where_clause');
-				var strDbViewTableSysId = GlideRecordInsert(grDbViewTable);
-				
-				if (IsValidSysId(strDbViewTableSysId))
-				{
-					var aFields = GetArrayValue(GetValue(table,'fields'));
-					for (var nField = 0; nField < aFields.length; nField++)
-					{
-						var strField = aFields[nField];
-						if (strField != '')
-						{
-							var grDbViewTableField = new GlideRecord('sys_db_view_table_field');
-							grDbViewTableField.initialize();
-							grDbViewTableField.field = strField;
-							grDbViewTableField.view_table = strDbViewTableSysId;
-							grDbViewTableField.table = GetValue(table,'table');
-							var strDbViewTableFieldSysId = GlideRecordInsert(grDbViewTableField);
-						}
-					}
-				}
-				
-			}
-		}
-		
-		
-		
-		this.Debug('CreateDatabaseView','Database view '+strDatabaseViewName+' has been created. sys_id='+strDbViewSysId);
-
-		return strDbViewSysId;
-		
-	},	
-
-	GetDatabaseViewPrefix:function()
-	{
-		return 'u_'+this.GetPrefix().toLowerCase();
-	},	
-	
-	GetDatabaseViewName:function(strName)
-	{
-		return this.GetDatabaseViewPrefix()+strName.toLowerCase();
-	},
-	
-	GetAllDatabaseViews:function()
-	{
-		var aResult = [];
-		var strPrefix = this.GetDatabaseViewPrefix();
-		
-		var grDbViews = new GlideRecord('sys_db_view');
-		grDbViews.addQuery('name','STARTSWITH',strPrefix);
-		grDbViews.orderBy('name');
-		grDbViews.query();
-		while (grDbViews.next())
-		{
-			var dbview = Clone(grDbViews);
-			
-			var aTables = [];
-			
-			var grDbViewTables = new GlideRecord('sys_db_view_table');
-			grDbViewTables.addQuery('view','=',grDbViews.sys_id);
-			grDbViewTables.query();
-			while (grDbViewTables.next())
-			{
-				var table = Clone(grDbViewTables);
-				
-				var aFields = [];
-				var grDbViewTableFields = new GlideRecord('sys_db_view_table_field');
-				grDbViewTableFields.addQuery('view_table','=',grDbViewTables.sys_id);
-				grDbViewTableFields.orderBy('field');
-				grDbViewTableFields.query();
-				while (grDbViewTableFields.next())
-				{
-					var field = Clone(grDbViewTableFields);
-					aFields.push(field);
-				}
-				table['_fields'] = aFields;
-				aTables.push(table);
-			}
-			dbview['_tables'] = aTables;
-			aResult.push(dbview);
-		}
-		return aResult;
-	},			
-	
-	
 	
 	type: 'TestDataAPI'
 	
@@ -1024,14 +604,14 @@ TestDataAPI.prototype =
         <sys_created_on>2020-05-13 14:53:39</sys_created_on>
         <sys_customer_update>false</sys_customer_update>
         <sys_id>1796abb01b78d410a89720a8ec4bcb1e</sys_id>
-        <sys_mod_count>140</sys_mod_count>
+        <sys_mod_count>54</sys_mod_count>
         <sys_name>TestDataAPI</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy>read</sys_policy>
         <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_script_include_1796abb01b78d410a89720a8ec4bcb1e</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2021-07-05 13:35:23</sys_updated_on>
+        <sys_updated_by>admin_R3EXUVB</sys_updated_by>
+        <sys_updated_on>2020-11-27 09:40:06</sys_updated_on>
     </sys_script_include>
 </record_update>
