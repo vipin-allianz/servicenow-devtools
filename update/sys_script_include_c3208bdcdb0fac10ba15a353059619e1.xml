@@ -6,7 +6,7 @@
         <caller_access/>
         <client_callable>false</client_callable>
         <description>A function to process large amounts of records using a callback function. The function makes use of a specified date/time field to determine which record to process next. Multiple instances of a background script can run using this function to work on large amounts of records in a table without interfering with each other.&#13;
-For large tables it is imperative to add an index on the date time field!</description>
+For large tables it is imperative to add an index on the date time field! HOTFIX1</description>
         <name>RecordBulkProcessor</name>
         <script><![CDATA[function RecordBulkProcessor(grRecords,callbackRecordProcessor,strFieldDateTime,nMaxRecords,nMaxSeconds,callbackLog,nLogFrequency)
 {
@@ -120,7 +120,13 @@ For large tables it is imperative to add an index on the date time field!</descr
 
 			}
 		}
-				
+		else
+		{
+			var strLog = 'No records found in '+strClassName+'.';
+			Log(strLog);
+			bContinue = false;
+		}				
+
 		if (nTotalRecordsProcessed >= nMaxRecords)
 		{
 			bContinue = false;
@@ -130,6 +136,7 @@ For large tables it is imperative to add an index on the date time field!</descr
 			bContinue = false;
 		}
 	}
+
 	
 	var strLog = 'Changed '+nTotalRecordsChanged+' out of '+nTotalRecordsProcessed+' processed records in '+strClassName+'.';
 	Log(strLog);	
@@ -140,14 +147,14 @@ For large tables it is imperative to add an index on the date time field!</descr
         <sys_created_on>2021-03-18 15:15:16</sys_created_on>
         <sys_customer_update>false</sys_customer_update>
         <sys_id>c3208bdcdb0fac10ba15a353059619e1</sys_id>
-        <sys_mod_count>28</sys_mod_count>
+        <sys_mod_count>30</sys_mod_count>
         <sys_name>RecordBulkProcessor</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy>read</sys_policy>
         <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_script_include_c3208bdcdb0fac10ba15a353059619e1</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2021-04-20 12:31:41</sys_updated_on>
+        <sys_updated_by>admin_r3exuvb</sys_updated_by>
+        <sys_updated_on>2021-08-09 13:01:19</sys_updated_on>
     </sys_script_include>
 </record_update>
